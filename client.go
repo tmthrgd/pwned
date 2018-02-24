@@ -9,6 +9,7 @@ import (
 
 	pb "github.com/tmthrgd/pwned/internal/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
 )
 
 // Client wraps a grpc.ClientConn for use with the
@@ -48,7 +49,7 @@ func (c *Client) Lookup(ctx context.Context, password string, opts ...grpc.CallO
 
 	resp, err := c.pc.Lookup(ctx, &pb.LookupRequest{
 		Digest: digest[:],
-	}, opts...)
+	}, disableCompression(opts)...)
 	if err != nil {
 		return 0, err
 	}
@@ -107,4 +108,13 @@ func searchSet(res []byte, suffix [SuffixSize]byte) int {
 	}
 
 	return 0
+}
+
+// disableCompression does what it says on the tin. It's
+// used to ensure the underlying transport does not
+// introduce any compression side-channels. Otherwise it
+// may be possible to recover secrets by watching packet
+// sizes on the wire or monitoring execution time.
+func disableCompression(opts []grpc.CallOption) []grpc.CallOption {
+	return append(opts, grpc.UseCompressor(encoding.Identity))
 }
