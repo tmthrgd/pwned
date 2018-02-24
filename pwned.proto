@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package pwned;
+option go_package = "proto";
+
+option optimize_for = SPEED;
+
+service Searcher {
+	rpc Lookup(LookupRequest) returns (LookupResponse) {}
+	rpc Range(RangeRequest) returns (RangeResponse) {}
+}
+
+message LookupRequest {
+	bytes digest = 1;
+}
+
+message LookupResponse {
+	uint32 count = 1;
+}
+
+message RangeRequest {
+	// Prefix is hex encoded.
+	string prefix = 1;
+}
+
+message RangeResponse {
+	// The results format is:
+	//  suffix0 || logcnt0 ||
+	//  suffix1 || logcnt1 ||
+	//  ... ||
+	//  suffixN || logcntN
+	// where logcntN is log2(countN).
+	//
+	// It's length is 18*N + N.
+	bytes results = 1;
+}
