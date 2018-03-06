@@ -53,12 +53,12 @@ func (s *Server) Attach(srv *grpc.Server) {
 }
 
 func (s pbServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.LookupResponse, error) {
-	if len(req.GetDigest()) != sha1.Size {
+	if len(req.Digest) != sha1.Size {
 		return nil, status.Error(codes.InvalidArgument, "digest is not SHA1")
 	}
 
 	var digest [sha1.Size]byte
-	copy(digest[:], req.GetDigest())
+	copy(digest[:], req.Digest)
 
 	var (
 		count int
@@ -85,12 +85,11 @@ func (s pbServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.Lookup
 }
 
 func (s pbServer) Range(ctx context.Context, req *pb.RangeRequest) (*pb.RangeResponse, error) {
-	prefix := req.GetPrefix()
-	if len(prefix) != PrefixSize {
+	if len(req.Prefix) != PrefixSize {
 		return nil, status.Error(codes.InvalidArgument, "prefix is wrong size")
 	}
 
-	res, err := s.ranger.Range(ctx, prefix)
+	res, err := s.ranger.Range(ctx, req.Prefix)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
