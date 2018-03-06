@@ -44,20 +44,11 @@ func NewDatasetReader(r io.Reader) *Reader {
 //
 // See https://haveibeenpwned.com/API/v2#PwnedPasswords.
 func NewResultsReader(r io.Reader, prefix string) *Reader {
-	br := bufio.NewReader(r)
-
-	bom, _, err := br.ReadRune()
-	if err != nil && bom != '\uFEFF' {
-		err = br.UnreadRune()
-	}
-
 	return &Reader{
-		s:       bufio.NewScanner(br),
+		s:       bufio.NewScanner(r),
 		dataset: false,
 
 		prefix: prefix,
-
-		err: err,
 	}
 }
 
