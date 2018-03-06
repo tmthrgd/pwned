@@ -54,7 +54,7 @@ func (c *Client) Lookup(ctx context.Context, password string, opts ...grpc.CallO
 		return 0, err
 	}
 
-	return int(resp.GetCount()), nil
+	return int(resp.Count), nil
 }
 
 // Search returns the number of times the password occurs
@@ -80,11 +80,11 @@ func (c *Client) Search(ctx context.Context, password string, opts ...grpc.CallO
 		return 0, err
 	}
 
-	if len(resp.GetResults())%(SuffixSize+1) != 0 {
+	if len(resp.Results)%(SuffixSize+1) != 0 {
 		return 0, errors.New("pwned: invalid result set returned")
 	}
 
-	return searchSet(resp.GetResults(), suffix), nil
+	return searchSet(resp.Results, suffix), nil
 }
 
 // Benchmarks:
