@@ -5,14 +5,11 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"math/rand"
-	"net"
 	"testing"
-	"time"
 
-	"github.com/hydrogen18/memlistener"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
+	"github.com/tmthrgd/pwned/internal/test"
 )
 
 type ranger map[string][]byte
@@ -44,41 +41,6 @@ func (r ranger) Range(ctx context.Context, prefix string) ([]byte, error) {
 	return r[prefix], nil
 }
 
-func testingClient(ranger Ranger) (c *Client, stop func()) {
-	ln := memlistener.NewMemoryListener()
-
-	srv := grpc.NewServer()
-
-	s := NewServer(ranger)
-	s.Attach(srv)
-
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-
-		if err := srv.Serve(ln); err != nil && err != grpc.ErrServerStopped {
-			panic(err)
-		}
-	}()
-
-	cc, err := grpc.Dial("",
-		grpc.WithDialer(func(addr string, dl time.Duration) (net.Conn, error) {
-			return ln.Dial("test", addr)
-		}),
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return NewClient(cc), func() {
-		cc.Close()
-		srv.Stop()
-		ln.Close()
-		<-done
-	}
-}
-
 func TestSearch(t *testing.T) {
 	t.Parallel()
 
@@ -87,10 +49,12 @@ func TestSearch(t *testing.T) {
 		"password", "password", "password", "P@ssw0rd",
 		"lauragpe", "alexguo029", "BDnd9102", "melobie", "quvekyny")
 
-	c, stop := testingClient(search)
+	c, stop := test.TestingClient(NewServer(search).Attach)
 	defer stop()
 
-	count, err := c.Search(context.Background(), "password")
+	cc := NewClient(c)
+
+	count, err := cc.Search(context.Background(), "password")
 	require.NoError(t, err)
 	assert.Equal(t, 8, count)
 }
@@ -101,10 +65,12 @@ func TestSearchNotPresent(t *testing.T) {
 	var search ranger
 	search.Set("password", "P@ssw0rd")
 
-	c, stop := testingClient(search)
+	c, stop := test.TestingClient(NewServer(search).Attach)
 	defer stop()
 
-	count, err := c.Search(context.Background(), "correct horse battery staple")
+	cc := NewClient(c)
+
+	count, err := cc.Search(context.Background(), "correct horse battery staple")
 	require.NoError(t, err)
 	assert.Equal(t, 0, count)
 }
