@@ -52,7 +52,10 @@ func testingClient(ranger Ranger) (c *Client, stop func()) {
 	s := NewServer(ranger)
 	s.Attach(srv)
 
+	done := make(chan struct{})
 	go func() {
+		defer close(done)
+
 		if err := srv.Serve(ln); err != nil && err != grpc.ErrServerStopped {
 			panic(err)
 		}
@@ -72,6 +75,7 @@ func testingClient(ranger Ranger) (c *Client, stop func()) {
 		cc.Close()
 		srv.Stop()
 		ln.Close()
+		<-done
 	}
 }
 
