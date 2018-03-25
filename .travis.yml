@@ -2,6 +2,10 @@ language: go
 go:
     - 1.10.x
     - tip
+before_install:
+    - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+install:
+    - dep ensure -v -vendor-only
 matrix:
     fast_finish: true
     allow_failures:
