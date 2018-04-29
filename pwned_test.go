@@ -21,7 +21,7 @@ func BenchmarkSearchSet(b *testing.B) {
 
 		b.Run(fmt.Sprint(N), func(b *testing.B) {
 			set := make([]byte, Size(N))
-			rand.Read(set[:N*SuffixSize])
+			rand.Read(set)
 
 			b.SetBytes(int64(len(set)))
 
