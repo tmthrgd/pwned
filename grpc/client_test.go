@@ -1,4 +1,4 @@
-package pwned
+package pwnedgrpc
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/tmthrgd/pwned"
 	"github.com/tmthrgd/pwned/internal/test"
 )
 
@@ -27,9 +28,9 @@ func (r *ranger) Set(passwords ...string) {
 
 	for _, password := range passwords {
 		digest := sha1.Sum([]byte(password))
-		prefix, suffix := SplitDigest(digest)
+		prefix, suffix := pwned.SplitDigest(digest)
 
-		res[prefix] = AppendResult(res[prefix], suffix, count[password])
+		res[prefix] = pwned.AppendResult(res[prefix], suffix, count[password])
 	}
 
 	*r = res

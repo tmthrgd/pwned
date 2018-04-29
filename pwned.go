@@ -3,6 +3,7 @@
 package pwned
 
 import (
+	"context"
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
@@ -72,4 +73,13 @@ func SearchSet(set []byte, suffix [SuffixSize]byte) int {
 	}
 
 	return 0
+}
+
+// Ranger returns the results that match a given prefix.
+// The rest of the password hash will be searched on the
+// client.
+//
+// AppendResult should be used to format the returned data.
+type Ranger interface {
+	Range(ctx context.Context, prefix string) ([]byte, error)
 }

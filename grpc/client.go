@@ -1,10 +1,11 @@
-package pwned
+package pwnedgrpc
 
 import (
 	"context"
 	"crypto/sha1"
 	"errors"
 
+	"github.com/tmthrgd/pwned"
 	pb "github.com/tmthrgd/pwned/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
@@ -69,7 +70,7 @@ func (c *Client) Lookup(ctx context.Context, password string, opts ...grpc.CallO
 // several KiB of data, but mitigates leaks of the password.
 func (c *Client) Search(ctx context.Context, password string, opts ...grpc.CallOption) (count int, err error) {
 	digest := sha1.Sum([]byte(password))
-	prefix, suffix := SplitDigest(digest)
+	prefix, suffix := pwned.SplitDigest(digest)
 
 	resp, err := c.pc.Range(ctx, &pb.RangeRequest{
 		Prefix: prefix,
@@ -78,11 +79,11 @@ func (c *Client) Search(ctx context.Context, password string, opts ...grpc.CallO
 		return 0, err
 	}
 
-	if len(resp.Results)%(SuffixSize+1) != 0 {
+	if len(resp.Results)%(pwned.SuffixSize+1) != 0 {
 		return 0, errors.New("pwned: invalid result set returned")
 	}
 
-	return SearchSet(resp.Results, suffix), nil
+	return pwned.SearchSet(resp.Results, suffix), nil
 }
 
 // disableCompression does what it says on the tin. It's

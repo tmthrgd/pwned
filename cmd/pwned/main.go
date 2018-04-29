@@ -5,8 +5,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/tmthrgd/pwned"
 	"github.com/tmthrgd/pwned/gateway"
+	"github.com/tmthrgd/pwned/grpc"
 	"google.golang.org/grpc"
 )
 
@@ -20,6 +20,6 @@ func main() {
 	}
 
 	gs := grpc.NewServer()
-	pwned.NewServer(gateway.New()).Attach(gs)
+	pwnedgrpc.NewServer(gateway.New()).Attach(gs)
 	log.Fatal(gs.Serve(ln))
 }

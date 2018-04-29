@@ -1,23 +1,15 @@
-package pwned
+package pwnedgrpc
 
 import (
 	"context"
 	"crypto/sha1"
 
+	"github.com/tmthrgd/pwned"
 	pb "github.com/tmthrgd/pwned/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-
-// Ranger returns the results that match a given prefix.
-// The rest of the password hash will be searched on the
-// client.
-//
-// AppendResult should be used to format the returned data.
-type Ranger interface {
-	Range(ctx context.Context, prefix string) ([]byte, error)
-}
 
 // Lookup contains an optional method that Ranger's may
 // implement to provide specific server side lookups.
@@ -25,18 +17,18 @@ type Ranger interface {
 // If not provided, Server will call Range and perform the
 // search as the client would.
 type Lookup interface {
-	Ranger
+	pwned.Ranger
 	Lookup(ctx context.Context, digest [sha1.Size]byte) (count int, err error)
 }
 
 // Server represents a pwned.Searcher service.
 type Server struct {
-	ranger Ranger
+	ranger pwned.Ranger
 	lookup Lookup
 }
 
 // NewServer creates a Server with the given Ranger.
-func NewServer(ranger Ranger) *Server {
+func NewServer(ranger pwned.Ranger) *Server {
 	lookup, _ := ranger.(Lookup)
 	return &Server{
 		ranger,
@@ -67,12 +59,12 @@ func (s pbServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.Lookup
 	if s.lookup != nil {
 		count, err = s.lookup.Lookup(ctx, digest)
 	} else {
-		prefix, suffix := SplitDigest(digest)
+		prefix, suffix := pwned.SplitDigest(digest)
 
 		var res []byte
 		res, err = s.ranger.Range(ctx, prefix)
 
-		count = SearchSet(res, suffix)
+		count = pwned.SearchSet(res, suffix)
 	}
 
 	if err != nil {
@@ -85,7 +77,7 @@ func (s pbServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.Lookup
 }
 
 func (s pbServer) Range(ctx context.Context, req *pb.RangeRequest) (*pb.RangeResponse, error) {
-	if len(req.Prefix) != PrefixSize {
+	if len(req.Prefix) != pwned.PrefixSize {
 		return nil, status.Error(codes.InvalidArgument, "prefix is wrong size")
 	}
 
@@ -94,7 +86,7 @@ func (s pbServer) Range(ctx context.Context, req *pb.RangeRequest) (*pb.RangeRes
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if len(res)%(SuffixSize+1) != 0 {
+	if len(res)%(pwned.SuffixSize+1) != 0 {
 		return nil, status.Error(codes.Internal, "invalid result set returned")
 	}
 
