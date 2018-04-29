@@ -49,7 +49,7 @@ func AppendResult(buf []byte, suffix [SuffixSize]byte, count uint64) []byte {
 
 // SearchSet searches for suffix in set. It returns an estimate
 // of the number of times it appears in the set.
-func SearchSet(set []byte, suffix [SuffixSize]byte) int {
+func SearchSet(set []byte, suffix [SuffixSize]byte) (count int) {
 	// Benchmarks:
 	//   minimum: N=381 -> 7.45µs ± 0%
 	//   average: N=478 -> 9.40µs ± 2%
