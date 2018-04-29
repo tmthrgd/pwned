@@ -5,7 +5,7 @@ import (
 	"crypto/sha1"
 
 	"github.com/tmthrgd/pwned"
-	pb "github.com/tmthrgd/pwned/internal/proto"
+	pb "github.com/tmthrgd/pwned/grpc/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

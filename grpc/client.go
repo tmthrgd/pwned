@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/tmthrgd/pwned"
-	pb "github.com/tmthrgd/pwned/internal/proto"
+	pb "github.com/tmthrgd/pwned/grpc/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 )

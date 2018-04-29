@@ -1,5 +1,5 @@
-// Package pwned provides a password checking client and server
-// accessible via gRPC.
+// Package pwned provides functions to efficiently check
+// password blacklists.
 package pwned
 
 import (
@@ -10,8 +10,6 @@ import (
 	"math/bits"
 	"strconv"
 )
-
-//go:generate protoc ./pwned.proto --go_out=plugins=grpc:internal/proto
 
 const (
 	// PrefixSize is the expected length of the prefix
