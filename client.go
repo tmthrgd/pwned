@@ -3,9 +3,7 @@ package pwned
 import (
 	"context"
 	"crypto/sha1"
-	"crypto/subtle"
 	"errors"
-	"strconv"
 
 	pb "github.com/tmthrgd/pwned/internal/proto"
 	"google.golang.org/grpc"
@@ -84,30 +82,7 @@ func (c *Client) Search(ctx context.Context, password string, opts ...grpc.CallO
 		return 0, errors.New("pwned: invalid result set returned")
 	}
 
-	return searchSet(resp.Results, suffix), nil
-}
-
-// Benchmarks:
-//   minimum: N=381 -> 7.45µs ± 0%
-//   average: N=478 -> 9.40µs ± 2%
-//   maximum: N=584 -> 11.9µs ± 2%
-func searchSet(res []byte, suffix [SuffixSize]byte) int {
-	if len(res)%(SuffixSize+1) != 0 {
-		panic("pwned: invariant invalid result set")
-	}
-
-	for i := 0; i < len(res); i += SuffixSize + 1 {
-		if subtle.ConstantTimeCompare(suffix[:], res[i:i+SuffixSize]) == 1 {
-			if res[i+SuffixSize] > strconv.IntSize-1 {
-				const maxInt = int(^uint(0) >> 1)
-				return maxInt
-			}
-
-			return 1 << res[i+SuffixSize]
-		}
-	}
-
-	return 0
+	return SearchSet(resp.Results, suffix), nil
 }
 
 // disableCompression does what it says on the tin. It's

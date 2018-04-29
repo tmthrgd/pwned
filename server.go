@@ -72,7 +72,7 @@ func (s pbServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.Lookup
 		var res []byte
 		res, err = s.ranger.Range(ctx, prefix)
 
-		count = searchSet(res, suffix)
+		count = SearchSet(res, suffix)
 	}
 
 	if err != nil {

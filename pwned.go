@@ -4,8 +4,10 @@ package pwned
 
 import (
 	"crypto/sha1"
+	"crypto/subtle"
 	"encoding/hex"
 	"math/bits"
+	"strconv"
 )
 
 //go:generate protoc ./pwned.proto --go_out=plugins=grpc:internal/proto
@@ -42,4 +44,32 @@ func AppendResult(buf []byte, suffix [SuffixSize]byte, count uint64) []byte {
 
 	n := 63 - bits.LeadingZeros64(count)
 	return append(buf, byte(n))
+}
+
+// SearchSet searches for suffix in set. It returns an estimate
+// of the number of times it appears in the set.
+func SearchSet(set []byte, suffix [SuffixSize]byte) int {
+	// Benchmarks:
+	//   minimum: N=381 -> 7.45µs ± 0%
+	//   average: N=478 -> 9.40µs ± 2%
+	//   maximum: N=584 -> 11.9µs ± 2%
+
+	if len(set)%(SuffixSize+1) != 0 {
+		panic("pwned: invariant invalid result set")
+	}
+
+	for i := 0; i < len(set); i += SuffixSize + 1 {
+		if subtle.ConstantTimeCompare(suffix[:], set[i:i+SuffixSize]) != 1 {
+			continue
+		}
+
+		if set[i+SuffixSize] > strconv.IntSize-1 {
+			const maxInt = int(^uint(0) >> 1)
+			return maxInt
+		}
+
+		return 1 << set[i+SuffixSize]
+	}
+
+	return 0
 }
