@@ -17,10 +17,10 @@ func BenchmarkSearchSet(b *testing.B) {
 		478, // average
 		584, // maximum
 	} {
-		b.Logf("N=%d -> %d bytes", N, N*(SuffixSize+1))
+		b.Logf("N=%d -> %d bytes", N, Size(N))
 
 		b.Run(fmt.Sprint(N), func(b *testing.B) {
-			set := make([]byte, N*(SuffixSize+1))
+			set := make([]byte, Size(N))
 			rand.Read(set[:N*SuffixSize])
 
 			b.SetBytes(int64(len(set)))
