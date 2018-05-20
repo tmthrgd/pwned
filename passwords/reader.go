@@ -12,6 +12,19 @@ import (
 	"go4.org/strutil"
 )
 
+// Each line is:
+//  prefix, 5-bytes, dataset-only;
+//  suffix, 35-bytes;
+//  literal ':', 1-byte;
+//  count, max 20 bytes;
+//  line-endings, max 2-bytes.
+// This gives a maximum length of 63-bytes per-line,
+// allow some further overhead.
+const (
+	lineBufSize = 64
+	maxLineSize = 96
+)
+
 // Reader parses either the raw Pwned Passwords dataset or
 // a range query from the ‘Have I been pwned?’ APIv2.
 type Reader struct {
@@ -24,7 +37,8 @@ type Reader struct {
 
 	err error
 
-	buf [2 * pwned.SuffixSize]byte
+	hexBuf  [2 * pwned.SuffixSize]byte
+	scanBuf [lineBufSize]byte
 }
 
 // NewDatasetReader parses the Pwned Passwords list from
@@ -33,10 +47,12 @@ type Reader struct {
 //
 // See https://haveibeenpwned.com/Passwords.
 func NewDatasetReader(r io.Reader) *Reader {
-	return &Reader{
+	dr := &Reader{
 		s:       bufio.NewScanner(r),
 		dataset: true,
 	}
+	dr.s.Buffer(dr.scanBuf[:], maxLineSize)
+	return dr
 }
 
 // NewResultsReader parses the result from a ‘Have I been
@@ -44,12 +60,14 @@ func NewDatasetReader(r io.Reader) *Reader {
 //
 // See https://haveibeenpwned.com/API/v2#PwnedPasswords.
 func NewResultsReader(r io.Reader, prefix string) *Reader {
-	return &Reader{
+	rr := &Reader{
 		s:       bufio.NewScanner(r),
 		dataset: false,
 
 		prefix: prefix,
 	}
+	rr.s.Buffer(rr.scanBuf[:], maxLineSize)
+	return rr
 }
 
 // Scan advances the Reader to the next token, which will
@@ -81,10 +99,10 @@ func (r *Reader) Scan() bool {
 		return false
 	}
 
-	r.buf[0] = r.prefix[4]
-	copy(r.buf[1:], line[:suffixSize])
+	r.hexBuf[0] = r.prefix[4]
+	copy(r.hexBuf[1:], line[:suffixSize])
 
-	if _, r.err = hex.Decode(r.suffix[:], r.buf[:]); r.err != nil {
+	if _, r.err = hex.Decode(r.suffix[:], r.hexBuf[:]); r.err != nil {
 		return false
 	}
 
