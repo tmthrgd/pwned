@@ -35,8 +35,7 @@ type Reader struct {
 	prefix string
 	suffix [pwned.SuffixSize]byte
 
-	hexBuf  [2 * pwned.SuffixSize]byte
-	scanBuf [lineBufSize]byte
+	hexBuf [2 * pwned.SuffixSize]byte
 
 	dataset bool
 }
@@ -47,13 +46,14 @@ type Reader struct {
 //
 // See https://haveibeenpwned.com/Passwords.
 func NewDatasetReader(r io.Reader) *Reader {
-	dr := &Reader{
-		s: bufio.NewScanner(r),
+	s := bufio.NewScanner(r)
+	s.Buffer(make([]byte, lineBufSize), maxLineSize)
+
+	return &Reader{
+		s: s,
 
 		dataset: true,
 	}
-	dr.s.Buffer(dr.scanBuf[:], maxLineSize)
-	return dr
 }
 
 // NewResultsReader parses the result from a ‘Have I been
@@ -61,15 +61,16 @@ func NewDatasetReader(r io.Reader) *Reader {
 //
 // See https://haveibeenpwned.com/API/v2#PwnedPasswords.
 func NewResultsReader(r io.Reader, prefix string) *Reader {
-	rr := &Reader{
-		s: bufio.NewScanner(r),
+	s := bufio.NewScanner(r)
+	s.Buffer(make([]byte, lineBufSize), maxLineSize)
+
+	return &Reader{
+		s: s,
 
 		prefix: prefix,
 
 		dataset: false,
 	}
-	rr.s.Buffer(rr.scanBuf[:], maxLineSize)
-	return rr
 }
 
 // Scan advances the Reader to the next token, which will
