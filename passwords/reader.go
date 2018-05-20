@@ -28,17 +28,17 @@ const (
 // Reader parses either the raw Pwned Passwords dataset or
 // a range query from the ‘Have I been pwned?’ APIv2.
 type Reader struct {
-	s       *bufio.Scanner
-	dataset bool
+	s   *bufio.Scanner
+	err error
 
+	count  uint64
 	prefix string
 	suffix [pwned.SuffixSize]byte
-	count  uint64
-
-	err error
 
 	hexBuf  [2 * pwned.SuffixSize]byte
 	scanBuf [lineBufSize]byte
+
+	dataset bool
 }
 
 // NewDatasetReader parses the Pwned Passwords list from
@@ -48,7 +48,8 @@ type Reader struct {
 // See https://haveibeenpwned.com/Passwords.
 func NewDatasetReader(r io.Reader) *Reader {
 	dr := &Reader{
-		s:       bufio.NewScanner(r),
+		s: bufio.NewScanner(r),
+
 		dataset: true,
 	}
 	dr.s.Buffer(dr.scanBuf[:], maxLineSize)
@@ -61,10 +62,11 @@ func NewDatasetReader(r io.Reader) *Reader {
 // See https://haveibeenpwned.com/API/v2#PwnedPasswords.
 func NewResultsReader(r io.Reader, prefix string) *Reader {
 	rr := &Reader{
-		s:       bufio.NewScanner(r),
-		dataset: false,
+		s: bufio.NewScanner(r),
 
 		prefix: prefix,
+
+		dataset: false,
 	}
 	rr.s.Buffer(rr.scanBuf[:], maxLineSize)
 	return rr
