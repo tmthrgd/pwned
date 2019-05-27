@@ -5,9 +5,9 @@ import (
 	"log"
 	"net"
 
-	"github.com/tmthrgd/pwned/gateway"
-	"github.com/tmthrgd/pwned/grpc"
 	"google.golang.org/grpc"
+	"tmthrgd.dev/go/pwned/gateway"
+	pwnedgrpc "tmthrgd.dev/go/pwned/grpc"
 )
 
 func main() {

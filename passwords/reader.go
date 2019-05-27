@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/tmthrgd/pwned"
 	"go4.org/strutil"
+	"tmthrgd.dev/go/pwned"
 )
 
 // Each line is:
