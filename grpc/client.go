@@ -5,10 +5,10 @@ import (
 	"crypto/sha1"
 	"errors"
 
+	"go.tmthrgd.dev/pwned"
+	pb "go.tmthrgd.dev/pwned/grpc/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
-	"tmthrgd.dev/go/pwned"
-	pb "tmthrgd.dev/go/pwned/grpc/internal/proto"
 )
 
 // Client wraps a grpc.ClientConn for use with the

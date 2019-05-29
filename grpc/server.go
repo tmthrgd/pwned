@@ -4,11 +4,11 @@ import (
 	"context"
 	"crypto/sha1"
 
+	"go.tmthrgd.dev/pwned"
+	pb "go.tmthrgd.dev/pwned/grpc/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"tmthrgd.dev/go/pwned"
-	pb "tmthrgd.dev/go/pwned/grpc/internal/proto"
 )
 
 // Lookup contains an optional method that Ranger's may

@@ -1,4 +1,4 @@
-module tmthrgd.dev/go/pwned
+module go.tmthrgd.dev/pwned
 
 go 1.12
 

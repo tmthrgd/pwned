@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"tmthrgd.dev/go/pwned/grpc"
-	"tmthrgd.dev/go/pwned/internal/test"
+	"go.tmthrgd.dev/pwned/grpc"
+	"go.tmthrgd.dev/pwned/internal/test"
 )
 
 func TestSearch(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"tmthrgd.dev/go/pwned"
-	"tmthrgd.dev/go/pwned/internal/test"
+	"go.tmthrgd.dev/pwned"
+	"go.tmthrgd.dev/pwned/internal/test"
 )
 
 type ranger map[string][]byte

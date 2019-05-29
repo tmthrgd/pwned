@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
-	"tmthrgd.dev/go/pwned"
-	"tmthrgd.dev/go/pwned/passwords"
+	"go.tmthrgd.dev/pwned"
+	"go.tmthrgd.dev/pwned/passwords"
 )
 
 var defaultEndpoint = &url.URL{

@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 
+	"go.tmthrgd.dev/pwned"
 	"go4.org/strutil"
-	"tmthrgd.dev/go/pwned"
 )
 
 // Each line is:
